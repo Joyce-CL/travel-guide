@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>里斯本 + 巴塞罗那 9日旅行攻略</title>
+<style>
+  :root {
+    --bg: #FAF8F5;
+    --card: #FFFFFF;
+    --accent: #C45D3E;
+    --text: #2C2C2C;
+    --text-secondary: #6B6B6B;
+    --border: #E8E4DF;
+    --lisbon: #1B7A6E;
+    --barcelona: #C45D3E;
+    --tag-booked: #2E7D32;
+    --tag-booked-bg: #E8F5E9;
+    --tag-todo: #E65100;
+    --tag-todo-bg: #FFF3E0;
+    --shadow: 0 2px 8px rgba(0,0,0,0.06);
+    --shadow-hover: 0 4px 16px rgba(0,0,0,0.1);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .hero {
+    background: linear-gradient(135deg, #1B7A6E 0%, #C45D3E 100%);
+    color: white; padding: 60px 24px 48px; text-align: center;
+  }
+  .hero h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
+  .hero .subtitle { font-size: 16px; opacity: 0.85; }
+  .container { max-width: 800px; margin: 0 auto; padding: 0 20px; }
+  .section { margin-top: 40px; }
+  .section-title { font-size: 22px; font-weight: 700; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
+  .overview-table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
+  .overview-table th { background: #F0EDEA; padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .overview-table td { padding: 12px 16px; border-top: 1px solid var(--border); font-size: 14px; }
+  .overview-table tr:hover td { background: #FAFAFA; }
+  .city-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .city-dot.lisbon { background: var(--lisbon); }
+  .city-dot.barcelona { background: var(--barcelona); }
+  .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.3px; }
+  .tag.booked { background: var(--tag-booked-bg); color: var(--tag-booked); }
+  .tag.todo { background: var(--tag-todo-bg); color: var(--tag-todo); }
+  .day-card { background: var(--card); border-radius: 16px; box-shadow: var(--shadow); margin-bottom: 24px; overflow: hidden; transition: box-shadow 0.2s; }
+  .day-card:hover { box-shadow: var(--shadow-hover); }
+  .day-header { padding: 20px 24px 16px; cursor: pointer; display: flex; align-items: center; gap: 16px; }
+  .day-header .day-num { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: white; flex-shrink: 0; }
+  .day-header .day-num.lisbon { background: var(--lisbon); }
+  .day-header .day-num.barcelona { background: var(--barcelona); }
+  .day-header .day-num.travel { background: linear-gradient(135deg, var(--lisbon), var(--barcelona)); }
+  .day-header .day-info { flex: 1; }
+  .day-header .day-date { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+  .day-header .day-title { font-size: 17px; font-weight: 600; margin-top: 2px; }
+  .day-header .toggle-icon { font-size: 20px; color: var(--text-secondary); transition: transform 0.3s; flex-shrink: 0; }
+  .day-card.open .toggle-icon { transform: rotate(180deg); }
+  .day-body { padding: 0 24px 24px; display: none; }
+  .day-card.open .day-body { display: block; }
+  .time-block { margin-bottom: 20px; }
+  .time-block:last-child { margin-bottom: 0; }
+  .time-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-secondary); margin-bottom: 8px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .time-block:first-child .time-label { border-top: none; padding-top: 0; }
+  .poi { background: #F9F7F5; border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
+  .poi-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .poi-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  .poi-meta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; font-size: 12px; color: var(--text-secondary); }
+  .restaurant { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; }
+  .restaurant + .restaurant { border-top: 1px dashed var(--border); }
+  .restaurant .r-icon { font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+  .restaurant .r-info { flex: 1; }
+  .restaurant .r-name { font-size: 14px; font-weight: 600; }
+  .restaurant .r-desc { font-size: 13px; color: var(--text-secondary); }
+  .restaurant .r-addr { font-size: 12px; color: #999; margin-top: 2px; }
+  .tip-box { background: #FFF8E1; border-left: 3px solid #FFB300; border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; font-size: 13px; color: #5D4037; }
+  .ticket-table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); font-size: 13px; }
+  .ticket-table th { background: #F0EDEA; padding: 10px 14px; text-align: left; font-weight: 600; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .ticket-table td { padding: 10px 14px; border-top: 1px solid var(--border); vertical-align: middle; }
+  .ticket-table a { color: var(--accent); text-decoration: none; }
+  .ticket-table a:hover { text-decoration: underline; }
+  .checklist { list-style: none; padding: 0; }
+  .checklist li { padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; display: flex; align-items: center; gap: 10px; }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist .check-box { width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 4px; flex-shrink: 0; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .info-card { background: var(--card); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); }
+  .info-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .info-card ul { list-style: none; padding: 0; }
+  .info-card li { font-size: 13px; color: var(--text-secondary); padding: 4px 0; line-height: 1.5; }
+  .booking-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .booking-item { background: var(--card); border-radius: 10px; padding: 14px 18px; box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; }
+  .booking-item .b-left { flex: 1; }
+  .booking-item .b-name { font-size: 14px; font-weight: 600; }
+  .booking-item .b-detail { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+  .sub-list { padding-left: 16px; margin-top: 6px; }
+  .sub-list li { font-size: 13px; color: var(--text-secondary); padding: 3px 0; list-style: disc; line-height: 1.5; }
+  .footer { text-align: center; padding: 40px 20px; font-size: 12px; color: #AAA; }
+  .market-badge { display: inline-flex; align-items: center; gap: 4px; background: #FFF3E0; color: #E65100; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; margin-left: 6px; }
+  .option-tabs { display: flex; gap: 0; margin-bottom: 16px; border-radius: 10px; overflow: hidden; border: 2px solid var(--border); }
+  .option-tab { flex: 1; padding: 12px 16px; text-align: center; cursor: pointer; font-size: 14px; font-weight: 600; background: var(--card); color: var(--text-secondary); transition: all 0.2s; }
+  .option-tab.active { background: var(--accent); color: white; }
+  .option-content { display: none; }
+  .option-content.active { display: block; }
+  @media (max-width: 600px) {
+    .hero { padding: 40px 16px 32px; }
+    .hero h1 { font-size: 24px; }
+    .container { padding: 0 12px; }
+    .day-header { padding: 16px; gap: 12px; }
+    .day-body { padding: 0 16px 20px; }
+    .info-grid { grid-template-columns: 1fr; }
+    .overview-table th, .overview-table td { padding: 8px 10px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>里斯本 + 巴塞罗那 9日</h1>
+  <div class="subtitle">2026.5.1 — 5.9 &nbsp;|&nbsp; 里斯本 2晚 · 巴塞罗那 6晚</div>
+</div>
+
+<div class="container">
+
+<div class="section">
+  <h2 class="section-title">行程总览</h2>
+  <table class="overview-table">
+    <thead><tr><th>日期</th><th>主题</th><th>住宿</th></tr></thead>
+    <tbody>
+      <tr><td>5/1 周五</td><td>落地巴塞 → 飞里斯本 → 半日游</td><td><span class="city-dot lisbon"></span>里斯本</td></tr>
+      <tr><td>5/2 周六</td><td>贝伦区 + LX Factory + Chiado</td><td><span class="city-dot lisbon"></span>里斯本</td></tr>
+      <tr><td>5/3 周日</td><td>里斯本 → 飞巴塞罗那 → 扩展区漫步</td><td><span class="city-dot barcelona"></span>巴塞罗那</td></tr>
+      <tr><td>5/4 周一</td><td>会议日（10:00-15:45）+ 兰布拉大道</td><td><span class="city-dot barcelona"></span>巴塞罗那</td></tr>
+      <tr><td>5/5 周二</td><td>高迪建筑日：米拉 + 巴特罗 + 桂尔公园</td><td><span class="city-dot barcelona"></span>巴塞罗那</td></tr>
+      <tr><td>5/6 周三</td><td>双市场 + 老城区 + 圣家堂</td><td><span class="city-dot barcelona"></span>巴塞罗那</td></tr>
+      <tr><td>5/7 周四</td><td>周边一日游：菲格雷斯 / Sitges（二选一）</td><td><span class="city-dot barcelona"></span>巴塞罗那</td></tr>
+      <tr><td>5/8 周五</td><td>Encants 跳蚤市场 + 蒙锥克山 + 海滨</td><td><span class="city-dot barcelona"></span>巴塞罗那</td></tr>
+      <tr><td>5/9 周六</td><td>退房 → 机场</td><td>—</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section">
+  <h2 class="section-title">已确认预订</h2>
+  <div class="booking-grid">
+    <div class="booking-item"><div class="b-left"><div class="b-name">巴塞罗那 → 里斯本机票</div><div class="b-detail">5/1 12:10起飞 → 13:20到达</div></div><span class="tag booked">已订</span></div>
+    <div class="booking-item"><div class="b-left"><div class="b-name">里斯本 → 巴塞罗那机票</div><div class="b-detail">5/3 9:10起飞 → 12:10到达</div></div><span class="tag booked">已订</span></div>
+    <div class="booking-item"><div class="b-left"><div class="b-name">巴塞罗那酒店（扩展区 Eixample）</div><div class="b-detail">5/3 — 5/9，共6晚</div></div><span class="tag booked">已订</span></div>
+    <div class="booking-item"><div class="b-left"><div class="b-name">米拉之家 La Pedrera</div><div class="b-detail">5/5 早上 8:00 首批入场</div></div><span class="tag booked">已订</span></div>
+    <div class="booking-item"><div class="b-left"><div class="b-name">巴特罗之家 Casa Batlló</div><div class="b-detail">5/5 上午 10:15</div></div><span class="tag booked">已订</span></div>
+    <div class="booking-item"><div class="b-left"><div class="b-name">圣家堂 Sagrada Família</div><div class="b-detail">5/6 下午 15:45</div></div><span class="tag booked">已订</span></div>
+    <div class="booking-item"><div class="b-left"><div class="b-name">离开巴塞罗那航班</div><div class="b-detail">5/9 10:20起飞</div></div><span class="tag booked">已订</span></div>
+  </div>
+</div>
+
+<div class="section">
+  <h2 class="section-title">每日详细行程</h2>
+
+  <!-- DAY 1 -->
+  <div class="day-card open" onclick="this.classList.toggle('open')">
+    <div class="day-header">
+      <div class="day-num travel">D1</div>
+      <div class="day-info"><div class="day-date">5月1日 周五</div><div class="day-title">落地巴塞罗那 → 飞里斯本 → 半日游</div></div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="day-body">
+      <div class="time-block">
+        <div class="time-label">上午 · 转机</div>
+        <div class="poi"><div class="poi-desc">8:15 落地巴塞罗那 El Prat 机场 → 取行李过关 → 12:10 飞里斯本</div></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">下午 13:20 · 抵达里斯本</div>
+        <div class="poi"><div class="poi-desc">机场乘地铁红线到市中心（约20-30分钟，票价1.65欧 + Viva Viagem卡0.5欧）<br>到酒店放行李，预计 15:00 开始游览</div></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">下午-傍晚 15:00-20:00 · Alfama 老城区</div>
+        <div class="poi">
+          <div class="poi-name">Alfama 区漫步</div>
+          <div class="poi-desc">里斯本最古老的街区，迷宫般的窄巷、彩色瓷砖墙、晾衣绳风景</div>
+          <ul class="sub-list">
+            <li>太阳门观景台 Miradouro das Portas do Sol — 经典明信片角度</li>
+            <li>圣卢西亚观景台 Miradouro de Santa Luzia — 蓝白瓷砖墙+三角梅</li>
+          </ul>
+          <div class="poi-meta"><span>漫步约1.5小时</span></div>
+        </div>
+        <div class="tip-box">5/1 是劳动节，圣乔治城堡当天关闭。改为 5/2 上午去（贝伦区之前或之后）</div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">晚上 · 晚餐 + Fado</div>
+        <div class="restaurant"><span class="r-icon">🍽</span><div class="r-info"><div class="r-name">Tasca do Chico（Alfama 店）</div><div class="r-desc">Fado 表演氛围好，边吃边听，需预订</div></div></div>
+        <div class="restaurant"><span class="r-icon">🔄</span><div class="r-info"><div class="r-name">备选：Mesa de Frades / A Cevicheria（Bairro Alto）</div><div class="r-desc">更精致 Fado 餐厅 / 秘鲁-葡萄牙融合菜</div></div></div>
+      </div>
+      <div class="tip-box">里斯本市内建议买 24小时公共交通卡（约6.8欧），覆盖地铁+公交+电车+升降机<br><br>5/1 是葡萄牙劳动节，公共假期。大部分旅游景点和餐厅正常营业，但圣乔治城堡关闭，部分小店可能休息</div>
+    </div>
+  </div>
+
+  <!-- DAY 2 -->
+  <div class="day-card" onclick="this.classList.toggle('open')">
+    <div class="day-header">
+      <div class="day-num lisbon">D2</div>
+      <div class="day-info"><div class="day-date">5月2日 周六</div><div class="day-title">贝伦区 + Chiado + LX Factory</div></div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="day-body">
+      <div class="time-block">
+        <div class="time-label">上午 9:00-13:00 · 贝伦区 Belém</div>
+        <div class="poi"><div class="poi-name">热罗尼莫斯修道院 Mosteiro dos Jerónimos</div><div class="poi-desc">曼努埃尔式建筑巅峰之作，UNESCO 世界遗产。建议 9:30 前到避开旅行团</div><div class="poi-meta"><span>门票 ~10欧</span><span>游览 ~1小时</span></div></div>
+        <div class="poi"><div class="poi-name">Pastéis de Belém</div><div class="poi-desc">1837年开业的蛋挞鼻祖店，一定要撒肉桂粉+糖粉。堂食比外带快</div><div class="poi-meta"><span>Rua de Belém 84-92</span></div></div>
+        <div class="poi"><div class="poi-name">贝伦塔 Torre de Belém</div><div class="poi-desc">塔霍河畔标志性防御塔，UNESCO 世界遗产。可买联票（修道院+贝伦塔 ~18欧）</div><div class="poi-meta"><span>门票 ~10欧</span></div></div>
+        <div class="poi"><div class="poi-name">发现者纪念碑 Padrão dos Descobrimentos</div><div class="poi-desc">航海大发现主题纪念碑，可登顶俯瞰。地面的世界地图罗盘值得看</div><div class="poi-meta"><span>门票 ~10欧</span></div></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">中午 · 午餐</div>
+        <div class="restaurant"><span class="r-icon">🍽</span><div class="r-info"><div class="r-name">Ponto Final</div><div class="r-desc">塔霍河对岸 Cacilhas，需坐渡轮5分钟，河景露台+超便宜海鲜</div></div></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">下午 14:30-18:00 · LX Factory + Chiado</div>
+        <div class="poi"><div class="poi-name">LX Factory</div><div class="poi-desc">旧工厂改造的创意园区。独立书店 Ler Devagar（全球最美书店之一）。从贝伦区步行约15分钟</div><div class="poi-meta"><span>逛1-1.5小时</span></div></div>
+        <div class="poi"><div class="poi-name">Chiado 区</div><ul class="sub-list"><li>圣胡斯塔升降机 — 排队长可跳过（从 Carmo 修道院旁天桥可免费到顶部平台）</li><li>Carmo 修道院废墟 — 1755年大地震后保留的哥特式废墟（~5欧）</li><li>Rua Augusta 凯旋门 — 可登顶看商业广场全景</li></ul></div>
+        <div class="poi"><div class="poi-name">Manteigaria 蛋挞店（Chiado 店）</div><div class="poi-desc">本地人更爱的蛋挞，现烤现卖，比 Pastéis de Belém 更酥脆</div><div class="poi-meta"><span>Rua do Loreto 2</span></div></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">晚上 · 晚餐</div>
+        <div class="restaurant"><span class="r-icon">🍽</span><div class="r-info"><div class="r-name">Time Out Market</div><div class="r-desc">里斯本最热门美食市场，推荐 Henrique Sá Pessoa、Café de São Bento</div><div class="r-addr">Avenida 24 de Julho 49</div></div></div>
+        <div class="restaurant"><span class="r-icon">🔄</span><div class="r-info"><div class="r-name">备选：Cervejaria Ramiro</div><div class="r-desc">海鲜啤酒屋，招牌老虎虾+蒜蓉蛤蜊，需预订或早到</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 3 -->
+  <div class="day-card" onclick="this.classList.toggle('open')">
+    <div class="day-header">
+      <div class="day-num travel">D3</div>
+      <div class="day-info"><div class="day-date">5月3日 周日</div><div class="day-title">里斯本 → 飞巴塞罗那 → 扩展区漫步</div></div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="day-body">
+      <div class="time-block">
+        <div class="time-label">早晨 6:30 · 赶飞机</div>
+        <div class="poi"><div class="poi-desc">早起退房 → 6:30 出发 → 地铁约20分钟到机场 → 9:10 航班 → 12:10 到达巴塞罗那<br>取行李，乘 Aerobus 或地铁到扩展区酒店（约40-50分钟），预计 13:30 入住</div></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">下午 14:30-18:00 · 扩展区漫步</div>
+        <div class="poi"><div class="poi-name">Passeig de Gràcia 大道</div><div class="poi-desc">巴塞罗那最优雅的林荫大道。外观欣赏"不和谐街区"三栋风格迥异的现代主义建筑</div></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">午餐 + 晚餐</div>
+        <div class="restaurant"><span class="r-icon">🍽</span><div class="r-info"><div class="r-name">午餐：Tapas 24</div><div class="r-desc">名厨 Carles Abellan 的店，招牌 truffle bikini 三明治</div><div class="r-addr">Carrer de la Diputació 269</div></div></div>
+        <div class="restaurant"><span class="r-icon">🍽</span><div class="r-info"><div class="r-name">晚餐：Bar Mut</div><div class="r-desc">Eixample 区，精致 tapas + 葡萄酒，建议预订</div><div class="r-addr">Carrer de Pau Claris 192</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 4 -->
+  <div class="day-card" onclick="this.classList.toggle('open')">
+    <div class="day-header">
+      <div class="day-num barcelona">D4</div>
+      <div class="day-info"><div class="day-date">5月4日 周一</div><div class="day-title">会议日（10:00-15:45）+ 兰布拉大道</div></div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="day-body">
+      <div class="time-block">
+        <div class="time-label">上午-下午 10:00-15:45 · 会议</div>
+        <div class="poi"><div class="poi-desc">早上在酒店附近咖啡馆吃早餐（推荐 Forn Mistral）<br>5/4 是周一，La Boqueria 正常开放，但会议日体力有限可不安排市场</div></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">下午 16:00-19:00 · 会后散步</div>
+        <div class="poi"><div class="poi-name">兰布拉大道 La Rambla</div><div class="poi-desc">从加泰罗尼亚广场走到哥伦布纪念碑，约1.2公里。沿途看 Boqueria 市场外观（会议日不安排逛里面，6号再来），走到底看 Port Vell 港口</div></div>
+        <div class="tip-box">注意防扒手，包背前面，手机不放后兜</div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">晚上 · 晚餐</div>
+        <div class="restaurant"><span class="r-icon">🍽</span><div class="r-info"><div class="r-name">Bodega La Puntual（Born 区）</div><div class="r-desc">老酒窖改造，生蚝吧+伊比利亚猪肉饭，需预订</div><div class="r-addr">Carrer de Montcada 22</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 5 -->
+  <div class="day-card" onclick="this.classList.toggle('open')">
+    <div class="day-header">
+      <div class="day-num barcelona">D5</div>
+      <div class="day-info"><div class="day-date">5月5日 周二</div><div class="day-title">高迪建筑日：米拉之家 + 巴特罗之家 + 桂尔公园</div></div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="day-body">
+      <div class="time-block">
+        <div class="time-label">上午 8:00-9:45 · 米拉之家</div>
+        <div class="poi"><div class="poi-name">米拉之家 La Pedrera <span class="tag booked">已订 8:00</span></div><div class="poi-desc">高迪晚期住宅杰作，屋顶烟囱群是最大亮点。建议先上屋顶，早晨光线最好</div><div class="poi-meta"><span>游览 ~1.5小时</span><span>Passeig de Gràcia 92</span></div></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">上午 10:15-12:00 · 巴特罗之家</div>
+        <div class="poi"><div class="poi-name">巴特罗之家 Casa Batlló <span class="tag booked">已订 10:15</span></div><div class="poi-desc">高迪最梦幻的住宅作品，海洋主题外立面，含 AR 导览。从米拉之家步行约5分钟</div><div class="poi-meta"><span>游览 ~1-1.5小时</span><span>Passeig de Gràcia 43</span></div></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">中午 · 午餐</div>
+        <div class="restaurant"><span class="r-icon">🍽</span><div class="r-info"><div class="r-name">Paco Meralgo</div><div class="r-desc">品质 tapas，海鲜拼盘好</div><div class="r-addr">Carrer de Muntaner 171</div></div></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">下午 14:30-16:30 · 桂尔公园</div>
+        <div class="poi"><div class="poi-name">桂尔公园 Park Güell <span class="tag todo">需预约</span></div><div class="poi-desc">高迪的马赛克童话公园。建议买 14:30 或 15:00 时段。下午光线偏暖拍照效果好</div><div class="poi-meta"><span>门票 ~10欧</span><span>游览 1.5-2小时</span><span>地铁 L3 Lesseps + 步行15分钟</span></div></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">傍晚 17:00-20:00 · Gràcia 区</div>
+        <div class="poi"><div class="poi-name">Gràcia 区漫步</div><div class="poi-desc">桂尔公园下山即到，巴塞罗那最有"村庄感"的街区。小广场喝咖啡，逛独立小店和 vintage 店</div></div>
+        <div class="poi"><div class="poi-name">Bunkers del Carmel（可选）</div><div class="poi-desc">防空洞观景台，巴塞罗那最佳免费观景点。5月日落约 20:30-21:00</div></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">晚上 · 晚餐</div>
+        <div class="restaurant"><span class="r-icon">🍽</span><div class="r-info"><div class="r-name">Oído（Gràcia 区）</div><div class="r-desc">热门 tapas 吧，必点青口</div><div class="r-addr">Carrer de la Providència 41</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 6 -->
+  <div class="day-card" onclick="this.classList.toggle('open')">
+    <div class="day-header">
+      <div class="day-num barcelona">D6</div>
+      <div class="day-info"><div class="day-date">5月6日 周三</div><div class="day-title">双市场 + 老城区 + 圣家堂</div></div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="day-body">
+      <div class="time-block">
+        <div class="time-label">上午 8:30-12:30 · 双市场 + 老城区</div>
+        <div class="poi"><div class="poi-name">La Boqueria 市场 <span class="market-badge">食品市场</span></div><div class="poi-desc">兰布拉大道上的百年市场，早上刚开门人最少。推荐 El Quim de la Boqueria 吧台</div><div class="poi-meta"><span>8:30-9:30</span><span>La Rambla 91</span></div></div>
+        <div class="poi"><div class="poi-name">Mercat de Santa Caterina <span class="market-badge">食品市场</span></div><div class="poi-desc">比 Boqueria 更本地化，彩色波浪屋顶是建筑大师 Enric Miralles 的作品</div><div class="poi-meta"><span>10:00-10:45</span><span>Avinguda de Francesc Cambó 16</span></div></div>
+        <div class="poi"><div class="poi-name">哥特区 + El Born 漫步（11:00-12:30）</div><ul class="sub-list"><li>巴塞罗那大教堂 — 免费进入（捐赠制），屋顶可上（~4欧）</li><li>国王广场 Plaça del Rei — 中世纪皇宫遗址</li><li>Sant Felip Neri 广场 — 西班牙内战弹痕墙</li><li>石桥 Pont del Bisbe — 哥特区标志性空中连廊</li><li>圣母玛利亚海洋教堂 Santa Maria del Mar</li><li>El Born 文化中心</li></ul></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">中午 · 午餐</div>
+        <div class="restaurant"><span class="r-icon">🍽</span><div class="r-info"><div class="r-name">Cal Pep（Born 区）</div><div class="r-desc">海鲜 tapas 经典老店，坐吧台看厨师现做。建议 13:00 前到</div><div class="r-addr">Plaça de les Olles 8</div></div></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">下午 14:00-15:30 · 自由时间</div>
+        <div class="poi"><div class="poi-name">毕加索博物馆（可选）</div><div class="poi-desc">收藏毕加索早期作品，就在 El Born 区。或者在咖啡馆休息</div><div class="poi-meta"><span>门票 ~12欧</span><span>游览 1-1.5小时</span></div></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">下午 15:45-17:30 · 圣家堂</div>
+        <div class="poi"><div class="poi-name">圣家堂 Sagrada Família <span class="tag booked">已订 15:45</span></div><div class="poi-desc">高迪毕生之作。建议选含 Nativity Tower 的票。下午光线穿过彩色玻璃窗呈现暖色调</div><div class="poi-meta"><span>游览 1.5-2小时（含塔楼）</span><span>地铁 L2/L5 Sagrada Família</span></div></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">晚上 · 晚餐</div>
+        <div class="restaurant"><span class="r-icon">🍽</span><div class="r-info"><div class="r-name">Bar Cañete（Raval 区）</div><div class="r-desc">海鲜为主的高品质 tapas，需预订</div><div class="r-addr">Carrer de la Unió 17</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 7 — 二选一 -->
+  <div class="day-card" onclick="this.classList.toggle('open')">
+    <div class="day-header">
+      <div class="day-num barcelona">D7</div>
+      <div class="day-info"><div class="day-date">5月7日 周四</div><div class="day-title">周边一日游（二选一）</div></div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="day-body">
+      <div class="tip-box" style="margin-top:0">菲格雷斯偏文化艺术，Sitges 偏海滨休闲，体验维度完全不同。请选一个</div>
+
+      <div class="option-tabs" id="d7tabs">
+        <div class="option-tab active" onclick="event.stopPropagation();switchTab('d7','a')">方案A · 菲格雷斯</div>
+        <div class="option-tab" onclick="event.stopPropagation();switchTab('d7','b')">方案B · Sitges</div>
+      </div>
+
+      <!-- 方案A -->
+      <div class="option-content active" id="d7-a">
+        <div class="time-block">
+          <div class="time-label">上午 7:30 出发 · 高铁去菲格雷斯</div>
+          <div class="poi"><div class="poi-desc">Barcelona Sants 站乘高铁 AVE/AVANT → Figueres Vilafant（约55分钟）<br>购票 <a href="https://www.renfe.com/" style="color:var(--accent)">renfe.com</a>，提前60天开售，越早越便宜（约12-25欧单程）<br>建议买 8:00-8:30 左右的班次</div></div>
+        </div>
+        <div class="time-block">
+          <div class="time-label">上午-下午 9:30-14:00 · 达利博物馆</div>
+          <div class="poi">
+            <div class="poi-name">达利戏剧博物馆 <span class="tag todo">需预约</span></div>
+            <div class="poi-desc">达利亲自设计的博物馆，建在废弃剧院上。世界最大超现实主义艺术收藏。不要错过达利珠宝展（含在门票内）。建议 9:30 开门就进</div>
+            <div class="poi-meta"><span>门票 ~15欧（5月旺季）</span><span>游览 2-3小时</span><span>旺季建议提前1-2周购票</span></div>
+          </div>
+          <div class="poi"><div class="poi-name">菲格雷斯老城漫步</div><ul class="sub-list"><li>La Rambla de Figueres — 小镇版兰布拉大道</li><li>Sant Ferran 城堡 — 欧洲最大棱堡要塞（时间充裕可去）</li></ul></div>
+        </div>
+        <div class="time-block">
+          <div class="time-label">中午 · 午餐</div>
+          <div class="restaurant"><span class="r-icon">🍽</span><div class="r-info"><div class="r-name">Hotel Duran 餐厅</div><div class="r-desc">达利生前最爱的餐厅，加泰罗尼亚传统菜</div></div></div>
+        </div>
+        <div class="time-block">
+          <div class="time-label">下午 15:00 · 返程</div>
+          <div class="poi"><div class="poi-desc">乘高铁返回巴塞罗那（约55分钟），预计 17:00 前回到市区</div></div>
+        </div>
+        <div class="time-block">
+          <div class="time-label">晚上 · 晚餐</div>
+          <div class="restaurant"><span class="r-icon">🍽</span><div class="r-info"><div class="r-name">Can Fisher（Barceloneta 海边）</div><div class="r-desc">paella 海鲜饭口碑好</div></div></div>
+        </div>
+      </div>
+
+      <!-- 方案B -->
+      <div class="option-content" id="d7-b">
+        <div class="time-block">
+          <div class="time-label">上午 9:00 出发 · 火车去 Sitges</div>
+          <div class="poi"><div class="poi-desc">Barcelona Passeig de Gràcia 或 Sants 站乘 RENFE Rodalies（R2 Sud 线）→ Sitges（约30-40分钟）<br>T-Casual 交通卡可用，无需额外购票，班次约每20分钟一班</div></div>
+        </div>
+        <div class="time-block">
+          <div class="time-label">上午 10:00-12:30 · 老城区 + 博物馆</div>
+          <div class="poi"><div class="poi-name">Sitges 老城漫步</div><div class="poi-desc">白色小巷、彩色门窗、地中海风情</div></div>
+          <div class="poi"><div class="poi-name">圣巴尔托梅乌教堂</div><div class="poi-desc">海边悬崖上的标志性教堂，Sitges 明信片角度</div></div>
+          <div class="poi">
+            <div class="poi-name">Cau Ferrat 博物馆 + Maricel 博物馆</div>
+            <div class="poi-desc">画家 Rusiñol 故居改造，收藏 El Greco 画作和欧洲最大锻铁艺术品收藏之一。Maricel 有海景露台</div>
+            <div class="poi-meta"><span>联票 ~15欧（含3个博物馆）</span><span>每月第一个周日免费</span></div>
+          </div>
+        </div>
+        <div class="time-block">
+          <div class="time-label">中午 · 午餐</div>
+          <div class="restaurant"><span class="r-icon">🍽</span><div class="r-info"><div class="r-name">Passeig de la Ribera 海滨餐厅</div><div class="r-desc">边看海边吃 paella 或海鲜</div></div></div>
+        </div>
+        <div class="time-block">
+          <div class="time-label">下午 14:00-17:00 · 海滩 + 海滨漫步</div>
+          <div class="poi"><div class="poi-name">Platja de Sant Sebastià</div><div class="poi-desc">最中心的海滩，蓝旗认证，设施齐全，教堂就在头顶</div></div>
+          <div class="poi"><div class="poi-name">Platja de la Ribera</div><div class="poi-desc">最长的沙滩，适合散步和水上活动。沿海滨步道一路棕榈树和白色建筑</div></div>
+        </div>
+        <div class="time-block">
+          <div class="time-label">傍晚 17:30 · 返程</div>
+          <div class="poi"><div class="poi-desc">乘火车返回巴塞罗那（约30-40分钟），预计 18:30 前回到市区</div></div>
+        </div>
+        <div class="time-block">
+          <div class="time-label">晚上 · 晚餐</div>
+          <div class="restaurant"><span class="r-icon">🍽</span><div class="r-info"><div class="r-name">Can Fisher（Barceloneta 海边）</div><div class="r-desc">paella 海鲜饭口碑好</div></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DAY 8 -->
+  <div class="day-card" onclick="this.classList.toggle('open')">
+    <div class="day-header">
+      <div class="day-num barcelona">D8</div>
+      <div class="day-info"><div class="day-date">5月8日 周五</div><div class="day-title">Encants 跳蚤市场 + 蒙锥克山 + 海滨</div></div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="day-body">
+      <div class="time-block">
+        <div class="time-label">上午 9:00-11:30 · 跳蚤市场</div>
+        <div class="poi">
+          <div class="poi-name">Mercat dels Encants <span class="market-badge">跳蚤市场</span></div>
+          <div class="poi-desc">欧洲最古老的跳蚤市场之一，数百个摊位。巨大的镜面天棚反射市场全景。可以淘到古董家具、复古服饰、二手书、黑胶唱片。早到选择最多，可以砍价</div>
+          <div class="poi-meta"><span>周一/三/五/六 9:00-20:00</span><span>Carrer de los Castillejos 158</span><span>地铁 L1 Glòries</span></div>
+        </div>
+        <div class="tip-box">5/8 是周五，Encants 正常开放（周一/三/五/六）</div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">中午 · 午餐</div>
+        <div class="restaurant"><span class="r-icon">🍽</span><div class="r-info"><div class="r-name">Quimet y Quimet（Poble Sec 区）</div><div class="r-desc">经典站立式 tapas 吧，三文鱼 tapa 是招牌。很小不接受预订，建议 13:00 前到</div><div class="r-addr">Carrer del Poeta Cabanyes 25</div></div></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">下午 14:00-17:00 · 蒙锥克山</div>
+        <div class="poi"><div class="poi-name">蒙锥克山 Montjuïc</div><div class="poi-desc">乘缆车上山（~13欧往返）或从 Plaça Espanya 步行上山</div></div>
+        <div class="poi"><div class="poi-name">加泰罗尼亚国家艺术博物馆 MNAC</div><div class="poi-desc">罗马式壁画收藏世界第一，建筑本身气势恢宏</div><div class="poi-meta"><span>门票 ~12欧</span><span>游览 1-2小时</span></div></div>
+        <div class="poi"><div class="poi-name">蒙锥克城堡</div><div class="poi-desc">俯瞰港口和城市全景</div><div class="poi-meta"><span>门票 ~5欧</span></div></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">傍晚 17:30-19:30 · 海滨</div>
+        <div class="poi"><div class="poi-name">Barceloneta 海滨</div><div class="poi-desc">地中海海滨散步。W Hotel 旁的栈桥走到尽头看海景</div></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">晚上 · 告别晚餐</div>
+        <div class="restaurant"><span class="r-icon">🍽</span><div class="r-info"><div class="r-name">Vaso de Oro（Barceloneta 区）</div><div class="r-desc">招牌 solomillo con foie，自酿啤酒，站着吃的老店</div><div class="r-addr">Carrer de Balboa 6</div></div></div>
+        <div class="restaurant"><span class="r-icon">🔄</span><div class="r-info"><div class="r-name">备选：La Bombeta</div><div class="r-desc">经典 tapas，招牌炸肉丸 "bomba"</div></div></div>
+        <div class="poi"><div class="poi-desc" style="margin-top:8px;font-size:13px;color:#6B6B6B;">回酒店收拾行李</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 9 -->
+  <div class="day-card" onclick="this.classList.toggle('open')">
+    <div class="day-header">
+      <div class="day-num barcelona">D9</div>
+      <div class="day-info"><div class="day-date">5月9日 周六</div><div class="day-title">退房 → 机场</div></div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="day-body">
+      <div class="poi"><div class="poi-desc">航班 10:20 起飞，建议 7:30 前到机场<br>6:30 从酒店出发<br><strong>Aerobus</strong>：从 Plaça Catalunya 出发，约35分钟，票价约7欧，5:30开始运营<br><strong>地铁 L9 Sud</strong>：约30分钟到机场</div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 门票预订 -->
+<div class="section">
+  <h2 class="section-title">门票预订汇总</h2>
+  <table class="ticket-table">
+    <thead><tr><th>景点</th><th>票价</th><th>状态 / 预约建议</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://www.lapedrera.com/en/tickets">米拉之家 La Pedrera</a></td><td>~25欧</td><td><span class="tag booked">已订 5/5 8:00</span></td></tr>
+      <tr><td><a href="https://www.casabatllo.es/en/tickets/">巴特罗之家 Casa Batlló</a></td><td>~35-39欧</td><td><span class="tag booked">已订 5/5 10:15</span></td></tr>
+      <tr><td><a href="https://sagradafamilia.org/tickets">圣家堂 Sagrada Família</a></td><td>~26-40欧</td><td><span class="tag booked">已订 5/6 15:45</span></td></tr>
+      <tr><td><a href="https://parkguell.barcelona/en/buy-tickets">桂尔公园 Park Güell</a></td><td>~10欧</td><td><span class="tag todo">需预约 5/5下午</span><br><span style="font-size:11px;color:#6B6B6B">旺季提前2-3个月售罄，尽快买</span></td></tr>
+      <tr><td><a href="https://www.salvador-dali.org/">达利博物馆 Figueres</a></td><td>~15欧（5月旺季）</td><td><span class="tag todo">需预约（如选方案A）</span><br><span style="font-size:11px;color:#6B6B6B">4-9月旺季建议提前1-2周</span></td></tr>
+      <tr><td><a href="https://www.museupicasso.bcn.cat/en/">毕加索博物馆</a></td><td>~12欧</td><td><span class="tag todo">建议预约（可选）</span><br><span style="font-size:11px;color:#6B6B6B">建议提前3-5天</span></td></tr>
+      <tr><td><a href="https://www.museunacional.cat/en">MNAC 国家艺术博物馆</a></td><td>~12欧</td><td>不必须，现场可买</td></tr>
+      <tr><td>蒙锥克城堡</td><td>~5欧</td><td>现场购买</td></tr>
+      <tr><td><a href="https://castelodesaojorge.pt/">里斯本·圣乔治城堡</a></td><td>~15欧</td><td><span class="tag todo">建议预约</span><br><span style="font-size:11px;color:#6B6B6B">建议提前3-5天，旺季现场排队长</span></td></tr>
+      <tr><td><a href="https://www.patrimoniocultural.gov.pt/">里斯本·热罗尼莫斯修道院</a></td><td>~10欧</td><td><span class="tag todo">强烈建议预约</span><br><span style="font-size:11px;color:#6B6B6B">年访客超200万，建议提前1-2周</span></td></tr>
+      <tr><td><a href="https://www.patrimoniocultural.gov.pt/">里斯本·贝伦塔</a></td><td>~10欧（联票18欧）</td><td><span class="tag todo">建议预约</span><br><span style="font-size:11px;color:#6B6B6B">建议提前1周，和修道院同一系统</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 待确认 -->
+<div class="section">
+  <h2 class="section-title">待确认事项</h2>
+  <ul class="checklist">
+    <li><span class="check-box"></span>桂尔公园门票（5/5 下午时段）— 旺季提前2-3个月售罄，尽快买</li>
+    <li><span class="check-box"></span>达利博物馆门票（5/7，如选方案A）— 建议提前1-2周</li>
+    <li><span class="check-box"></span>里斯本住宿预订（5/1-5/3，2晚）</li>
+    <li><span class="check-box"></span>里斯本景点门票（圣乔治城堡、修道院、贝伦塔）— 修道院建议提前1-2周</li>
+    <li><span class="check-box"></span>菲格雷斯高铁票（5/7 往返，如选方案A）— 提前60天开售</li>
+    <li><span class="check-box"></span>5/7 方案确定：菲格雷斯 or Sitges</li>
+    <li><span class="check-box"></span>La Boqueria 周三营业时间确认（5/6）</li>
+  </ul>
+</div>
+
+<!-- 实用信息 -->
+<div class="section">
+  <h2 class="section-title">实用信息</h2>
+  <div class="info-grid">
+    <div class="info-card"><h4>🚇 里斯本交通</h4><ul><li>机场→市中心：地铁红线，约20-30分钟</li><li>Viva Viagem 卡（0.5欧）+ 单程票（1.65欧）</li><li>24小时公共交通卡约6.8欧</li><li>去贝伦区：电车 15E，约30分钟</li></ul></div>
+    <div class="info-card"><h4>🚇 巴塞罗那交通</h4><ul><li>T-Casual 交通卡：10次约11.35欧</li><li>机场：Aerobus 约7欧/35分钟</li><li>菲格雷斯：高铁 AVE 从 Sants 站55分钟</li><li>Sitges：Rodalies R2 Sud 约30-40分钟</li></ul></div>
+    <div class="info-card"><h4>🍽 餐饮节奏</h4><ul><li><strong>里斯本</strong>：午餐 12:30-14:30，晚餐 19:30-21:30</li><li><strong>巴塞罗那</strong>：午餐 13:30-15:00，晚餐 20:30-22:00</li><li>很多餐厅 13:00 前不开午餐，20:00 前不开晚餐</li><li>饿了先去酒吧点 vermut + 橄榄 + 薯片</li></ul></div>
+    <div class="info-card"><h4>🌤 天气穿搭</h4><ul><li>里斯本5月：白天 17-22°C，晚上 13-15°C</li><li>巴塞罗那5月：白天 18-23°C，晚上 13-16°C</li><li>白天短袖/薄长袖，晚上带薄外套</li><li>舒适走路的鞋（大量石板路和上下坡）</li><li>防晒霜+墨镜，里斯本带小折叠伞</li></ul></div>
+    <div class="info-card"><h4>🔒 安全提醒</h4><ul><li>兰布拉大道、地铁、海滩、28路电车是扒手重灾区</li><li>包背前面，手机不放后兜</li><li>拒绝街头签名请愿和主动搭讪的人</li><li>海滩不要留无人看管的物品</li></ul></div>
+    <div class="info-card"><h4>🍳 里斯本必吃</h4><ul><li>Pastéis de Nata（蛋挞）</li><li>Bacalhau（鳕鱼，据说365种做法）</li><li>Bifana（猪肉三明治）</li><li>Ginjinha（樱桃利口酒）</li></ul></div>
+  </div>
+</div>
+
+<!-- 住宿 -->
+<div class="section">
+  <h2 class="section-title">住宿</h2>
+  <div class="info-grid">
+    <div class="info-card"><h4>里斯本 5/1-5/3（2晚）</h4><ul><li>推荐住 Baixa-Chiado 区域</li><li><strong>Hotel Santa Justa Lisboa</strong>：紧邻圣胡斯塔升降机</li><li>备选：My Story Hotel Figueira</li><li>经济选择：Alfama 区民宿</li></ul></div>
+    <div class="info-card"><h4>巴塞罗那 5/3-5/9（6晚）<span class="tag booked" style="margin-left:8px">已订</span></h4><ul><li>扩展区 Eixample 酒店</li><li>地铁四通八达，步行可达高迪建筑群</li></ul></div>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">里斯本 + 巴塞罗那 9日旅行攻略 · 2026.5.1 — 5.9</div>
+
+<script>
+function switchTab(day, tab) {
+  var tabs = document.querySelectorAll('#' + day + 'tabs .option-tab');
+  tabs.forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('#' + day + '-a, #' + day + '-b').forEach(function(c) { c.classList.remove('active'); });
+  if (tab === 'a') { tabs[0].classList.add('active'); document.getElementById(day + '-a').classList.add('active'); }
+  else { tabs[1].classList.add('active'); document.getElementById(day + '-b').classList.add('active'); }
+}
+</script>
+
+</body>
+</html>
