@@ -88,6 +88,15 @@
   .ticket-link { color: var(--accent); text-decoration: none; cursor: pointer; font-size: 11px; }
   .ticket-link:hover { text-decoration: underline; }
   .ticket-app-hint { font-size: 11px; color: #999; font-style: italic; }
+  .ticket-modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center; flex-direction:column; }
+  .ticket-modal-overlay.active { display:flex; }
+  .ticket-modal-close { position:absolute; top:12px; right:16px; color:white; font-size:28px; cursor:pointer; z-index:10001; background:rgba(0,0,0,0.5); border:none; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+  .ticket-modal-body { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:50px 16px 16px; }
+  .ticket-modal-body iframe { width:100%; flex:1; border:none; border-radius:8px; background:white; }
+  .ticket-modal-body img { max-width:100%; max-height:80vh; border-radius:8px; object-fit:contain; }
+  .ticket-modal-actions { margin-top:12px; display:flex; gap:12px; }
+  .ticket-modal-actions a { color:white; background:var(--accent); padding:8px 20px; border-radius:8px; text-decoration:none; font-size:14px; font-weight:600; }
+  .ticket-modal-loading { color:white; font-size:16px; }
   .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .info-card { background: var(--card); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); }
   .info-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
@@ -557,6 +566,15 @@ async function openTicket(key) {
   var t = TICKET_DATA[key];
   if (!t) { alert('票务文件未找到'); return; }
 
+  // Show modal with loading
+  var modal = document.getElementById('ticketModal');
+  var body = document.getElementById('ticketModalBody');
+  var loading = document.getElementById('ticketLoading');
+  modal.classList.add('active');
+  body.innerHTML = '';
+  body.appendChild(loading);
+  loading.style.display = 'block';
+
   try {
     // Decode base64 fields
     var salt = Uint8Array.from(atob(t.salt), function(c){return c.charCodeAt(0)});
@@ -580,16 +598,59 @@ async function openTicket(key) {
       {name:'AES-GCM', iv:iv}, aesKey, ct
     );
 
-    // Open in new tab
     var blob = new Blob([plainBuf], {type: t.mime});
     var url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
+
+    // Build modal content
+    body.innerHTML = '';
+    if (t.mime.startsWith('image/')) {
+      var img = document.createElement('img');
+      img.src = url;
+      body.appendChild(img);
+    } else {
+      var iframe = document.createElement('iframe');
+      iframe.src = url;
+      body.appendChild(iframe);
+    }
+
+    // Download button
+    var actions = document.createElement('div');
+    actions.className = 'ticket-modal-actions';
+    var dlLink = document.createElement('a');
+    dlLink.href = url;
+    dlLink.download = key.split('/').pop();
+    dlLink.textContent = '下载文件';
+    actions.appendChild(dlLink);
+    body.appendChild(actions);
+
   } catch(e) {
+    modal.classList.remove('active');
     alert('解密失败：' + e.message);
   }
 }
 
+function closeTicketModal() {
+  var modal = document.getElementById('ticketModal');
+  modal.classList.remove('active');
+  var body = document.getElementById('ticketModalBody');
+  // Revoke any blob URLs
+  var iframes = body.querySelectorAll('iframe');
+  iframes.forEach(function(f){ if(f.src.startsWith('blob:')) URL.revokeObjectURL(f.src); });
+  var imgs = body.querySelectorAll('img');
+  imgs.forEach(function(i){ if(i.src.startsWith('blob:')) URL.revokeObjectURL(i.src); });
+  var links = body.querySelectorAll('a');
+  links.forEach(function(a){ if(a.href.startsWith('blob:')) URL.revokeObjectURL(a.href); });
+  body.innerHTML = '<div class="ticket-modal-loading" id="ticketLoading">解密中...</div>';
+}
+
 </script>
+
+<div class="ticket-modal-overlay" id="ticketModal">
+  <button class="ticket-modal-close" onclick="closeTicketModal()">✕</button>
+  <div class="ticket-modal-body" id="ticketModalBody">
+    <div class="ticket-modal-loading" id="ticketLoading">解密中...</div>
+  </div>
+</div>
 
 </body>
 </html>
