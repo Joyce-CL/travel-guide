@@ -113,7 +113,14 @@
   .booking-item .b-detail { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
   .sub-list { padding-left: 16px; margin-top: 6px; }
   .sub-list li { font-size: 13px; color: var(--text-secondary); padding: 3px 0; list-style: disc; line-height: 1.5; }
-  .footer { text-align: center; padding: 40px 20px; font-size: 12px; color: #AAA; }
+  .footer { text-align: center; padding: 40px 20px 100px; font-size: 12px; color: #AAA; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .bottom-tabs { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 1px solid var(--border); display: flex; z-index: 9998; padding-bottom: env(safe-area-inset-bottom); }
+  .bottom-tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 4px 6px; cursor: pointer; color: var(--text-secondary); font-size: 10px; font-weight: 500; transition: color 0.2s; gap: 2px; -webkit-tap-highlight-color: transparent; }
+  .bottom-tab.active { color: var(--accent); }
+  .bottom-tab .tab-icon { font-size: 20px; line-height: 1; }
+  .bottom-tab .tab-label { line-height: 1; }
   .market-badge { display: inline-flex; align-items: center; gap: 4px; background: #FFF3E0; color: #E65100; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; margin-left: 6px; }
   .option-tabs { display: flex; gap: 0; margin-bottom: 16px; border-radius: 10px; overflow: hidden; border: 2px solid var(--border); }
   .option-tab { flex: 1; padding: 12px 16px; text-align: center; cursor: pointer; font-size: 14px; font-weight: 600; background: var(--card); color: var(--text-secondary); transition: all 0.2s; }
@@ -140,6 +147,7 @@
 
 <div class="container">
 
+<div class="tab-content" id="tab-overview">
 <div class="section">
   <h2 class="section-title">行程总览</h2>
   <table class="overview-table">
@@ -157,12 +165,14 @@
     </tbody>
   </table>
 </div>
+</div>
 
+<div class="tab-content active" id="tab-itinerary">
 <div class="section">
   <h2 class="section-title">每日详细行程</h2>
 
   <!-- DAY 1 -->
-  <div class="day-card open" onclick="this.classList.toggle('open')">
+  <div class="day-card" onclick="this.classList.toggle('open')">
     <div class="day-header">
       <div class="day-num travel">D1</div>
       <div class="day-info"><div class="day-date">5月1日 周五</div><div class="day-title">落地巴塞罗那 → 飞里斯本 → 半日游</div></div>
@@ -454,6 +464,10 @@
 
 </div>
 
+</div>
+</div>
+
+<div class="tab-content" id="tab-tickets">
 <!-- 票务预订汇总 -->
 <div class="section">
   <h2 class="section-title">票务预订汇总</h2>
@@ -486,6 +500,10 @@
   </table>
 </div>
 
+</div>
+</div>
+
+<div class="tab-content" id="tab-other">
 <!-- 实用信息 -->
 <div class="section">
   <h2 class="section-title">实用信息</h2>
@@ -507,12 +525,33 @@
     <div class="info-card"><h4>巴塞罗那 5/3-5/9（6晚）<span class="tag booked" style="margin-left:8px">已订</span></h4><ul><li><strong>Occidental Diagonal 414</strong></li><li>Avinguda Diagonal 414, 08037 Barcelona</li><li>扩展区 Eixample，距 Passeig de Gràcia 约600米</li></ul></div>
   </div>
 </div>
+</div>
 
 </div>
 
 <div class="footer">里斯本 + 巴塞罗那 9日旅行攻略 · 2026.5.1 — 5.9</div>
 
+<nav class="bottom-tabs">
+  <div class="bottom-tab" onclick="switchMainTab('overview')"><span class="tab-icon">📋</span><span class="tab-label">总览</span></div>
+  <div class="bottom-tab active" onclick="switchMainTab('itinerary')"><span class="tab-icon">🗓</span><span class="tab-label">行程</span></div>
+  <div class="bottom-tab" onclick="switchMainTab('tickets')"><span class="tab-icon">🎫</span><span class="tab-label">票务</span></div>
+  <div class="bottom-tab" onclick="switchMainTab('other')"><span class="tab-icon">📌</span><span class="tab-label">其他</span></div>
+</nav>
+
 <script>
+function switchMainTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.bottom-tab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('tab-' + tabId).classList.add('active');
+  // Find the matching bottom tab
+  var tabs = document.querySelectorAll('.bottom-tab');
+  var tabNames = ['overview', 'itinerary', 'tickets', 'other'];
+  for (var i = 0; i < tabNames.length; i++) {
+    if (tabNames[i] === tabId) { tabs[i].classList.add('active'); break; }
+  }
+  window.scrollTo(0, 0);
+}
+
 function switchTab(day, tab) {
   var tabs = document.querySelectorAll('#' + day + 'tabs .option-tab');
   tabs.forEach(function(t) { t.classList.remove('active'); });
